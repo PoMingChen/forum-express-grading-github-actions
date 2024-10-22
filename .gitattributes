@@ -1,4 +1,4 @@
-*                 text=auto
+*                 text=auto // 請 git 幫我們決定要用什麼樣的換行字元（mac 系統會是 lf），（ windows 系統會是 crlf），這樣多人協作時就不會有換行字元的問題了
 
 # Source code
 *.css             text diff=css
@@ -12,7 +12,7 @@
 *.txt             text
 
 # Templates
-*.handlebars      text
+*.handlebars      text  
 *.hbs             text
 
 # Configs
