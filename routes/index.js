@@ -6,6 +6,7 @@ const passport = require('../config/passport') // 引入 Passport，需要他幫
 // 新增，載入 controller（object）
 const restController = require('../controllers/restaurant-controller')
 const userController = require('../controllers/user-controller') // 新增這行
+const { authenticated } = require('../middleware/auth')  //引入 auth.js
 const { generalErrorHandler } = require('../middleware/error-handler') // 加入這行
 
 router.use('/admin', admin) // 新增這行
@@ -19,7 +20,7 @@ router.post('/signin',
     { failureRedirect: '/signin', failureFlash: true }), userController.signIn) // 注意是 post
 router.get('/logout', userController.logout)
 
-router.get('/restaurants', restController.getRestaurants)
+router.get('/restaurants', authenticated, restController.getRestaurants)
 router.get('/', (req, res) => res.redirect('/restaurants'))
 router.use('/', generalErrorHandler)
 
