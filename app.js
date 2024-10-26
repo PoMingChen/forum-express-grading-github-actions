@@ -4,6 +4,7 @@ const handlebars = require('express-handlebars') // 引入 express-handlebars
 // 新增以下兩行，引入套件
 const flash = require('connect-flash')
 const session = require('express-session')
+const passport = require('./config/passport') // 增加這行，引入 Passport
 const routes = require('./routes')
 
 const app = express()
@@ -18,7 +19,10 @@ app.set('view engine', 'hbs')
 
 app.use(express.urlencoded({ extended: true })) // 處理來自表單的 POST 請求，將請求體解析為 req.body（不然會是 req.body 會是 undefined）
 app.use(session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false }))
+app.use(passport.initialize()) // 初始化 Passport
+app.use(passport.session()) // 增加這行，啟動 session 功能
 app.use(flash()) // 掛載套件
+
 
 // 嚴格說起來，這邊是可以用 middlewares/message-handler.js 去做到 SOC
 app.use((req, res, next) => {
