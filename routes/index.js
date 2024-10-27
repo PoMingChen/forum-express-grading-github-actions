@@ -6,10 +6,10 @@ const passport = require('../config/passport') // 引入 Passport，需要他幫
 // 新增，載入 controller（object）
 const restController = require('../controllers/restaurant-controller')
 const userController = require('../controllers/user-controller') // 新增這行
-const { authenticated } = require('../middleware/auth')  //引入 auth.js
+const { authenticated, authenticatedAdmin } = require('../middleware/auth')
 const { generalErrorHandler } = require('../middleware/error-handler') // 加入這行
 
-router.use('/admin', admin) // 新增這行
+router.use('/admin', authenticatedAdmin, admin) // 新增這行
 // 新增下面這兩行，注意順序
 router.get('/signup', userController.signUpPage)
 router.post('/signup', userController.signUp) // 注意用 post
