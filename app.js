@@ -3,9 +3,10 @@ const handlebars = require('express-handlebars') // 引入 express-handlebars
 
 // 新增以下兩行，引入套件
 const flash = require('connect-flash')
+const methodOverride = require('method-override') // 引入套件 method-override
 const session = require('express-session')
 const passport = require('./config/passport') // 增加這行，引入 Passport
-const { getUser } = require('./helpers/auth-helpers') //增加這行，引入自定義的 auth-helpers.js
+const { getUser } = require('./helpers/auth-helpers') // 增加這行，引入自定義的 auth-helpers.js
 const handlebarsHelpers = require('./helpers/handlebars-helpers') // 引入 handlebars-helpers.js
 const routes = require('./routes')
 
@@ -24,14 +25,14 @@ app.use(session({ secret: SESSION_SECRET, resave: false, saveUninitialized: fals
 app.use(passport.initialize()) // 初始化 Passport
 app.use(passport.session()) // 增加這行，啟動 session 功能
 app.use(flash()) // 掛載套件
-
+app.use(methodOverride('_method')) // 使用 method-override
 
 // 嚴格說起來，這邊是可以用 middlewares/message-handler.js 去做到 SOC
 app.use((req, res, next) => {
   res.locals.success_messages = req.flash('success_messages') // 設定 success_msg 訊息
   res.locals.error_messages = req.flash('error_messages') // 設定 warning_msg 訊息
 
-  res.locals.user = getUser(req)  // 增加這行
+  res.locals.user = getUser(req) // 增加這行
   next()
 })
 app.use(routes)
