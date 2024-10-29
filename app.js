@@ -1,3 +1,4 @@
+const path = require('path') // 引入 path 套件
 const express = require('express')
 const handlebars = require('express-handlebars') // 引入 express-handlebars
 
@@ -26,6 +27,7 @@ app.use(passport.initialize()) // 初始化 Passport
 app.use(passport.session()) // 增加這行，啟動 session 功能
 app.use(flash()) // 掛載套件
 app.use(methodOverride('_method')) // 使用 method-override
+app.use('/upload', express.static(path.join(__dirname, 'upload'))) // 這部分會將 __dirname 路徑和 'upload' 路徑片段組合起來，形成到 upload 資料夾的絕對路徑。這樣的設定讓 Express 可以正確地找到 upload 資料夾，即使專案目錄位置有所改變也不會受影響。
 
 // 嚴格說起來，這邊是可以用 middlewares/message-handler.js 去做到 SOC
 app.use((req, res, next) => {

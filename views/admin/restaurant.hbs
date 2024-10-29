@@ -8,6 +8,10 @@
         <li><strong>Opening Hour:</strong> {{restaurant.openingHours}}</li>
         <li><strong>Tel:</strong> {{restaurant.tel}}</li>
         <li><strong>Address:</strong> {{restaurant.address}}</li>
+        <img class="img-responsive center-block" src="{{restaurant.image}}"
+          style="width: 250px; margin-bottom: 25px; transition: opacity 0.5s; opacity:0;"
+          onload="this.style.opacity=1;">
+        <br>
       </ul>
     </div>
   </div>
