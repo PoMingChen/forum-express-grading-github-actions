@@ -1,0 +1,60 @@
+<h1>餐廳後台</h1>
+
+<!-- Tabs for switching between Restaurants and Users -->
+<ul class="nav nav-tabs">
+  <li class="nav-item">
+    <a class="nav-link {{#if (eq activeTab 'restaurants')}}active{{/if}}" href="/admin/restaurants">Restaurants</a>
+  </li>
+  <li class="nav-item">
+    <a class="nav-link {{#if (eq activeTab 'users')}}active{{/if}}" href="/admin/users">Users</a>
+  </li>
+</ul>
+
+<br />
+
+<!-- Users Table -->
+<table class="table align-middle">
+  <thead class="thead-dark table-dark">
+    <tr>
+      <th scope="col">id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Email</th>
+      <th scope="col">Role</th>
+      <th scope="col">#</th>
+    </tr>
+  </thead>
+  <tbody>
+    {{#each users}}
+    <tr>
+      <th scope="row">{{this.id}}</th>
+      <td>{{this.name}}</td>
+      <td>{{this.email}}</td>
+      <td>
+        {{#if (eq this.isAdmin 1)}}
+        admin
+        {{else}}
+        user
+        {{/if}}
+      </td>
+
+      <td>
+        {{#if (eq this.isAdmin 1)}}
+        <form action="/admin/users/{{this.id}}?_method=PATCH" method="POST" style="display: inline;">
+          <input type="hidden" name="isAdmin" value="false">
+          <button type="submit" class="link-primary"
+            onclick="return confirm('Are you sure you want to set {{this.name}} as a regular user?')">set as
+            user</button>
+        </form>
+        {{else}}
+        <form action="/admin/users/{{this.id}}?_method=PATCH" method="POST" style="display: inline;">
+          <input type="hidden" name="isAdmin" value="true">
+          <button type="submit" class="link-primary"
+            onclick="return confirm('Are you sure you want to set {{this.name}} as an admin?')">set as admin</button>
+        </form>
+        {{/if}}
+      </td>
+
+    </tr>
+    {{/each}}
+  </tbody>
+</table>

@@ -1,4 +1,4 @@
-const { Restaurant } = require('../models') // 新增這裡
+const { Restaurant, User } = require('../models') // 新增這裡
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const adminController = {
@@ -45,7 +45,9 @@ const adminController = {
     })
       .then(restaurant => {
         if (!restaurant) throw new Error("Restaurant didn't exist!") //  如果找不到，回傳錯誤訊息，後面不執行，直接跳到 .catch
-        res.render('admin/restaurant', { restaurant })
+        res.render('admin/restaurant', {
+          restaurant, activeTab: 'restaurants'
+        })
       })
       .catch(err => next(err))
   },
@@ -96,7 +98,41 @@ const adminController = {
       })
       .then(() => res.redirect('/admin/restaurants'))
       .catch(err => next(err))
+  },
+
+  getUsers: (req, res, next) => {
+    return User.findAll({ raw: true })
+      .then(users => {
+        // console.log(users)
+        res.render('admin/users', { users, activeTab: 'users' })
+      })
+      .catch(err => next(err))
+  },
+
+  patchUser: (req, res, next) => {
+    // let { isAdmin } = req.body || {}
+    // console.log(req.body)
+
+    return User.findByPk(req.params.id)
+      .then(user => {
+        if (!user || user.email === 'root@example.com') {
+          if (!user) {
+            throw new Error('User not found')
+          } else {
+            req.flash('error_messages', '禁止變更 root 權限')
+            return res.redirect('back')
+          }
+        }
+        const isAdminUpdated = !user.isAdmin
+        return user.update({ isAdmin: isAdminUpdated }) // the user instance has the property called isAdmin, not is_admin (the column name in the database)
+      })
+      .then(user => {
+        req.flash('success_messages', '使用者權限變更成功')
+        res.redirect('/admin/users')
+      })
+      .catch(err => next(err))
   }
+
 }
 
 module.exports = adminController
