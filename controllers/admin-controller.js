@@ -1,4 +1,4 @@
-const { Restaurant, User } = require('../models') // 新增這裡
+const { Restaurant, User } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const adminController = {
@@ -7,9 +7,7 @@ const adminController = {
     Restaurant.findAll({
       raw: true
     })
-
       .then(restaurants => res.render('admin/restaurants', { restaurants }))
-
       .catch(err => next(err))
   },
 
@@ -17,14 +15,16 @@ const adminController = {
     return res.render('admin/create-restaurant')
   },
 
-  // 新增以下
   postRestaurant: (req, res, next) => {
-    const { name, tel, address, openingHours, description } = req.body // 從 req.body 拿出表單裡的資料
-    if (!name) throw new Error('Restaurant name is required!') // name 是必填，若發現是空值就會終止程式碼，並在畫面顯示錯誤提示
+    // Extract data from the form in req.body
+    const { name, tel, address, openingHours, description } = req.body
+    if (!name) throw new Error('Restaurant name is required!') // Name is required
 
-    const { file } = req // 把檔案取出來，也可以寫成 const file = req.file
-    localFileHandler(file) // 把取出的檔案傳給 file-helper 處理後
-      .then(filePath => Restaurant.create({ // 再 create 這筆餐廳資料
+    const { file } = req
+
+    // Pass the extracted file to file-helper for processing, and then create the restaurant data
+    localFileHandler(file)
+      .then(filePath => Restaurant.create({
         name,
         tel,
         address,
@@ -40,11 +40,12 @@ const adminController = {
   },
 
   getRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, { // 去資料庫用 id 找一筆資料
-      raw: true // 找到以後整理格式再回傳
+    Restaurant.findByPk(req.params.id, { // Find the record in the database by id
+      raw: true
     })
       .then(restaurant => {
-        if (!restaurant) throw new Error("Restaurant didn't exist!") //  如果找不到，回傳錯誤訊息，後面不執行，直接跳到 .catch
+        // If not found, throw an error to skip further execution and go directly to .catch
+        if (!restaurant) throw new Error("Restaurant didn't exist!")
         res.render('admin/restaurant', {
           restaurant, activeTab: 'restaurants'
         })
@@ -52,7 +53,7 @@ const adminController = {
       .catch(err => next(err))
   },
 
-  editRestaurant: (req, res, next) => { // 新增這段
+  editRestaurant: (req, res, next) => {
     Restaurant.findByPk(req.params.id, {
       raw: true
     })
@@ -67,12 +68,15 @@ const adminController = {
     const { name, tel, address, openingHours, description } = req.body
     if (!name) throw new Error('Restaurant name is required!')
 
-    const { file } = req // 把檔案取出來
-    Promise.all([ // 非同步處理
-      Restaurant.findByPk(req.params.id), // 去資料庫查有沒有這間餐廳
-      localFileHandler(file) // 把檔案傳到 file-helper 處理
+    const { file } = req
+
+    // Handle asynchronous tasks concurrently
+    Promise.all([
+      Restaurant.findByPk(req.params.id),
+      localFileHandler(file) // Send the file to file-helper for processing
     ])
-      .then(([restaurant, filePath]) => { // 以上兩樣事都做完以後; 如果任何一個 Promise 拋出錯誤，Promise.all() 會立即停止其他 Promise 的執行，直接跳轉到 .catch()，傳遞失敗的錯誤訊息。
+      // After both tasks are completed; if any Promise throws an error, Promise.all() will immediately stop other Promises and jump to .catch(), passing the failure message.
+      .then(([restaurant, filePath]) => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
         return restaurant.update({ // 修改這筆資料
           name,
@@ -80,7 +84,7 @@ const adminController = {
           address,
           openingHours,
           description,
-          image: filePath || restaurant.image // 如果 filePath 是 Truthy (使用者有上傳新照片) 就用 filePath，是 Falsy (使用者沒有上傳新照片) 就沿用原本資料庫內的值
+          image: filePath || restaurant.image // If the file is not uploaded, use the original image
         })
       })
       .then(() => {
@@ -90,7 +94,7 @@ const adminController = {
       .catch(err => next(err))
   },
 
-  deleteRestaurant: (req, res, next) => { // 新增以下
+  deleteRestaurant: (req, res, next) => {
     return Restaurant.findByPk(req.params.id)
       .then(restaurant => {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
@@ -103,16 +107,12 @@ const adminController = {
   getUsers: (req, res, next) => {
     return User.findAll({ raw: true })
       .then(users => {
-        // console.log(users)
         res.render('admin/users', { users, activeTab: 'users' })
       })
       .catch(err => next(err))
   },
 
   patchUser: (req, res, next) => {
-    // let { isAdmin } = req.body || {}
-    // console.log(req.body)
-
     return User.findByPk(req.params.id)
       .then(user => {
         if (!user || user.email === 'root@example.com') {
