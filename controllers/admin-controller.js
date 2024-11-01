@@ -4,7 +4,7 @@ const { localFileHandler } = require('../helpers/file-helpers')
 const adminController = {
 
   getRestaurants: (req, res, next) => {
-    Restaurant.findAll({
+    return Restaurant.findAll({
       raw: true
     })
       .then(restaurants => res.render('admin/restaurants', { restaurants }))
@@ -23,7 +23,7 @@ const adminController = {
     const { file } = req
 
     // Pass the extracted file to file-helper for processing, and then create the restaurant data
-    localFileHandler(file)
+    return localFileHandler(file)
       .then(filePath => Restaurant.create({
         name,
         tel,
@@ -40,7 +40,7 @@ const adminController = {
   },
 
   getRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, { // Find the record in the database by id
+    return Restaurant.findByPk(req.params.id, { // Find the record in the database by id
       raw: true
     })
       .then(restaurant => {
@@ -54,7 +54,7 @@ const adminController = {
   },
 
   editRestaurant: (req, res, next) => {
-    Restaurant.findByPk(req.params.id, {
+    return Restaurant.findByPk(req.params.id, {
       raw: true
     })
       .then(restaurant => {
@@ -71,7 +71,7 @@ const adminController = {
     const { file } = req
 
     // Handle asynchronous tasks concurrently
-    Promise.all([
+    return Promise.all([
       Restaurant.findByPk(req.params.id),
       localFileHandler(file) // Send the file to file-helper for processing
     ])
