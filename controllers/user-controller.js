@@ -1,6 +1,7 @@
-const bcrypt = require('bcryptjs') // 載入 bcrypt
-const db = require('../models') // 實際上就是在匯入 models/index.js(進而取得所有模型和資料庫連線。)
-const { User } = db // 一種解構賦值的語法
+const bcrypt = require('bcryptjs')
+// Imports models/index.js, which provides access to all models and the database connection
+const db = require('../models')
+const { User } = db
 
 const userController = {
   signUpPage: (req, res) => {

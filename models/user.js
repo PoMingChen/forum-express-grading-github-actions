@@ -17,11 +17,11 @@ module.exports = (sequelize, DataTypes) => {
     name: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    isAdmin: DataTypes.BOOLEAN // 加入這行
+    isAdmin: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'User',
-    tableName: 'Users', // 新增這裡
+    tableName: 'Users',
     underscored: true
   })
   return User

@@ -12,7 +12,7 @@ passport.use(new LocalStrategy(
     passReqToCallback: true // so you may access req within session information(with flash messages) in callback.
   },
   // authenticate user（登入認證程序）
-  (req, email, password, cb) => { // cb: callback
+  (req, email, password, cb) => { // cb: callback, equivalent to done
     User.findOne({ where: { email } })
       .then(user => {
         if (!user) return cb(null, false, req.flash('error_messages', '帳號或密碼輸入錯誤！'))
