@@ -1,16 +1,6 @@
 <h1>餐廳後台</h1>
 
-<!-- Tabs for switching between Restaurants and Users -->
-<ul class="nav nav-tabs">
-  <li class="nav-item">
-    <a class="nav-link {{#if (eq activeTab 'restaurants')}}active{{/if}}" href="/admin/restaurants">Restaurants</a>
-  </li>
-  <li class="nav-item">
-    <a class="nav-link {{#if (eq activeTab 'users')}}active{{/if}}" href="/admin/users">Users</a>
-  </li>
-</ul>
-
-<br />
+{{> admin-tabs activeTab='users'}}
 
 <!-- Users Table -->
 <table class="table align-middle">
