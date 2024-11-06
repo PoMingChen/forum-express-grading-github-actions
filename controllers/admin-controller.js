@@ -56,7 +56,7 @@ const adminController = {
         // If not found, throw an error to skip further execution and go directly to .catch
         if (!restaurant) throw new Error("Restaurant didn't exist!")
         res.render('admin/restaurant', {
-          restaurant, activeTab: 'restaurants'
+          restaurant, route: 'restaurants'
         })
       })
       .catch(err => next(err))
@@ -118,7 +118,7 @@ const adminController = {
   getUsers: (req, res, next) => {
     return User.findAll({ raw: true })
       .then(users => {
-        res.render('admin/users', { users, activeTab: 'users' })
+        res.render('admin/users', { users, route: 'users' })
       })
       .catch(err => next(err))
   },
