@@ -3,29 +3,15 @@ const { Category } = require('../models')
 const categoryController = {
 
   getCategories: (req, res, next) => {
-    return Category.findAll({
-      raw: true
-    })
-      .then(categories => res.render('admin/categories', {
-        categories,
-        isEdit: false, // Indicate that this is the create route
-        route: 'categories'
-      }))
-      .catch(err => next(err))
-  },
-
-  // Handler for displaying the update category form
-  getCategory: (req, res, next) => {
-    Promise.all([
-      Category.findByPk(req.params.id, { raw: true }),
-      Category.findAll({ raw: true })
+    // 修改以下
+    return Promise.all([
+      Category.findAll({ raw: true }),
+      req.params.id ? Category.findByPk(req.params.id, { raw: true }) : null
     ])
-      .then(([category, categories]) => {
-        if (!category) throw new Error("Category doesn't exist!")
+      .then(([categories, category]) => {
         res.render('admin/categories', {
-          category,
           categories,
-          isEdit: true // Indicate that this is the edit route
+          category
         })
       })
       .catch(err => next(err))
