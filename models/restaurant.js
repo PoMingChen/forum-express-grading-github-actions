@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
      */
     static associate(models) {
       Restaurant.belongsTo(models.Category, { foreignKey: 'categoryId' }) // 增加這行
+      Restaurant.hasMany(models.Comment, { foreignKey: 'restaurantId' }) // 新增這行
     }
   };
   Restaurant.init({
@@ -20,6 +21,13 @@ module.exports = (sequelize, DataTypes) => {
     openingHours: DataTypes.STRING,
     description: DataTypes.TEXT,
     image: DataTypes.STRING,
+    categoryId: {
+      type: DataTypes.INTEGER,
+      references: {
+        model: 'Categories', // Name of the table
+        key: 'id'
+      }
+    },
     viewCounts: DataTypes.INTEGER
   }, {
     sequelize,
