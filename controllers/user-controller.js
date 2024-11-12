@@ -1,7 +1,9 @@
 const bcrypt = require('bcryptjs')
 // Imports models/index.js, which provides access to all models and the database connection
 const db = require('../models')
+const { raw } = require('express')
 const { User } = db
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const userController = {
   signUpPage: (req, res) => {
@@ -40,6 +42,55 @@ const userController = {
     req.flash('success_messages', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+
+  getUser: (req, res, next) => {
+    console.log(req.params.id)
+    return User.findByPk(req.params.id, {
+      raw: true
+    })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        return res.render('users/profile', { user })
+      })
+      .catch(err => next(err))
+  },
+
+  editUser: (req, res, next) => {
+    return User.findByPk(req.params.id, {
+      raw: true
+    })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        return res.render('users/edit', { user })
+      })
+      .catch(err => next(err))
+  },
+
+  putUser: (req, res, next) => {
+    const { name } = req.body
+    if (!name) throw new Error('User name is required!')
+    const { file } = req
+    return Promise.all([
+      User.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
+      .then(([user, filePath]) => {
+        if (!user) throw new Error("User didn't exist!")
+        return user.update({
+          name,
+          image: filePath || user.image
+        })
+      })
+      .then(user => {
+        req.flash('success_messages', '使用者資料編輯成功')
+
+        // not correct to write as res.redirect('/users/{{user.id}}') because {{user.id}} syntax is specific to template engines like Handlebars.
+        // You can use Template Literals as shown below, or String Concatenation: res.redirect('/users/' + user.id)
+        res.redirect(`/users/${user.id}`)
+      })
+      .catch(err => next(err))
   }
 }
+
 module.exports = userController
