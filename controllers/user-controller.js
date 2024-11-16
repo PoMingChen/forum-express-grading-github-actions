@@ -3,13 +3,12 @@ const bcrypt = require('bcryptjs')
 const db = require('../models')
 const { User, Comment, Restaurant } = db
 const { localFileHandler } = require('../helpers/file-helpers')
-const { raw } = require('express')
 
 const userController = {
   signUpPage: (req, res) => {
     res.render('signup')
   },
-  signUp: (req, res, next) => { // 記得加上 next
+  signUp: (req, res, next) => {
     // 如果兩次輸入的密碼不同，就建立一個 Error 物件並拋出
     if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
 
@@ -26,7 +25,7 @@ const userController = {
         password: hash
       }))
       .then(() => {
-        req.flash('success_messages', '成功註冊帳號！') // 並顯示成功訊息
+        req.flash('success_messages', '成功註冊帳號！')
         res.redirect('/signin')
       })
       .catch(err => next(err)) // 接住前面拋出的錯誤，呼叫專門做錯誤處理的 middleware
@@ -45,13 +44,12 @@ const userController = {
   },
 
   getUser: (req, res, next) => {
-    // console.log(req.params.id)
     return Promise.all([
       User.findByPk(req.params.id, { raw: true }),
       Comment.findAndCountAll({
         include: {
-          model: Restaurant, // Correctly reference the Restaurant model
-          attributes: ['id', 'name', 'image'] // Use 'attributes' instead of 'attribute'
+          model: Restaurant,
+          attributes: ['id', 'name', 'image']
         },
         where: { user_id: req.params.id },
         raw: true,
@@ -59,9 +57,7 @@ const userController = {
       })
     ])
       .then(([user, data]) => {
-        console.log(user)
-        console.log(data)
-
+        // Extract comments from data.rows
         let comments = data.rows.map(comment => ({ ...comment, Restaurant: comment.Restaurant }))
 
         // Ensure comments is always an array

@@ -1,10 +1,9 @@
 const express = require('express')
 const router = express.Router()
 const admin = require('./modules/admin')
-const passport = require('../config/passport') // 引入 Passport，需要他幫忙做驗證
+const passport = require('../config/passport')
 const upload = require('../middleware/multer') // 載入 multer(這樣 UserProfile 的圖片才能上傳)
 
-// 新增，載入 controller（object）
 const restController = require('../controllers/restaurant-controller')
 const userController = require('../controllers/user-controller')
 const commentController = require('../controllers/comment-controller')
