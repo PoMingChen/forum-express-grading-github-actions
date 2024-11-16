@@ -1,9 +1,9 @@
 const bcrypt = require('bcryptjs')
 // Imports models/index.js, which provides access to all models and the database connection
 const db = require('../models')
-const { raw } = require('express')
-const { User } = db
+const { User, Comment, Restaurant } = db
 const { localFileHandler } = require('../helpers/file-helpers')
+const { raw } = require('express')
 
 const userController = {
   signUpPage: (req, res) => {
@@ -45,13 +45,30 @@ const userController = {
   },
 
   getUser: (req, res, next) => {
-    console.log(req.params.id)
-    return User.findByPk(req.params.id, {
-      raw: true
-    })
-      .then(user => {
+    // console.log(req.params.id)
+    return Promise.all([
+      User.findByPk(req.params.id, { raw: true }),
+      Comment.findAndCountAll({
+        include: {
+          model: Restaurant, // Correctly reference the Restaurant model
+          attributes: ['id', 'name', 'image'] // Use 'attributes' instead of 'attribute'
+        },
+        where: { user_id: req.params.id },
+        raw: true,
+        nest: true
+      })
+    ])
+      .then(([user, data]) => {
+        console.log(user)
+        console.log(data)
+
+        let comments = data.rows.map(comment => ({ ...comment, Restaurant: comment.Restaurant }))
+
+        // Ensure comments is always an array
+        comments = comments || []
+
         if (!user) throw new Error('User not found!')
-        return res.render('users/profile', { user })
+        return res.render('users/profile', { user, comments })
       })
       .catch(err => next(err))
   },
