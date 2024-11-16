@@ -4,11 +4,6 @@ const {
 } = require('sequelize')
 module.exports = (sequelize, DataTypes) => {
   class Comment extends Model {
-    /**
-     * Helper method for defining associations.
-     * This method is not a part of Sequelize lifecycle.
-     * The `models/index` file will call this method automatically.
-     */
     static associate(models) {
       Comment.belongsTo(models.Restaurant, { foreignKey: 'restaurantId' }) // belongsTo: The foreign key is in the current model.
       Comment.belongsTo(models.User, { foreignKey: 'userId' })

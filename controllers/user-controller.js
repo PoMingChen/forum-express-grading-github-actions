@@ -1,13 +1,14 @@
 const bcrypt = require('bcryptjs')
 // Imports models/index.js, which provides access to all models and the database connection
 const db = require('../models')
-const { User } = db
+const { User, Comment, Restaurant } = db
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const userController = {
   signUpPage: (req, res) => {
     res.render('signup')
   },
-  signUp: (req, res, next) => { // 記得加上 next
+  signUp: (req, res, next) => {
     // 如果兩次輸入的密碼不同，就建立一個 Error 物件並拋出
     if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
 
@@ -24,7 +25,7 @@ const userController = {
         password: hash
       }))
       .then(() => {
-        req.flash('success_messages', '成功註冊帳號！') // 並顯示成功訊息
+        req.flash('success_messages', '成功註冊帳號！')
         res.redirect('/signin')
       })
       .catch(err => next(err)) // 接住前面拋出的錯誤，呼叫專門做錯誤處理的 middleware
@@ -40,6 +41,69 @@ const userController = {
     req.flash('success_messages', '登出成功！')
     req.logout()
     res.redirect('/signin')
+  },
+
+  getUser: (req, res, next) => {
+    return Promise.all([
+      User.findByPk(req.params.id, { raw: true }),
+      Comment.findAndCountAll({
+        include: {
+          model: Restaurant,
+          attributes: ['id', 'name', 'image']
+        },
+        where: { user_id: req.params.id },
+        raw: true,
+        nest: true
+      })
+    ])
+      .then(([user, data]) => {
+        // Extract comments from data.rows
+        let comments = data.rows.map(comment => ({ ...comment, Restaurant: comment.Restaurant }))
+
+        // Ensure comments is always an array
+        comments = comments || []
+
+        if (!user) throw new Error('User not found!')
+        return res.render('users/profile', { user, comments })
+      })
+      .catch(err => next(err))
+  },
+
+  editUser: (req, res, next) => {
+    return User.findByPk(req.params.id, {
+      raw: true
+    })
+      .then(user => {
+        if (!user) throw new Error('User not found!')
+        return res.render('users/edit', { user })
+      })
+      .catch(err => next(err))
+  },
+
+  putUser: (req, res, next) => {
+    const { name } = req.body
+    if (!name) throw new Error('User name is required!')
+    const { file } = req
+    return Promise.all([
+      User.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
+      .then(([user, filePath]) => {
+        if (!user) throw new Error("User didn't exist!")
+        return user.update({
+          name,
+          image: filePath || user.image
+        })
+      })
+      .then(user => {
+        req.flash('success_messages', '使用者資料編輯成功')
+
+        // not correct to write as res.redirect('/users/{{user.id}}') because {{user.id}} syntax is specific to template engines like Handlebars.
+        // You can use Template Literals as shown below, or String Concatenation: res.redirect('/users/' + user.id)
+        res.redirect(`/users/${user.id}`)
+      })
+      .catch(err => next(err))
   }
 }
+
 module.exports = userController

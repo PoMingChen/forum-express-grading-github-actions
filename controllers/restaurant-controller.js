@@ -5,8 +5,8 @@ const restaurantController = {
 
   getRestaurants: (req, res, next) => {
     const DEFAULT_LIMIT = 9
-    const categoryId = Number(req.query.categoryId) || '' // 新增這裡，從網址上拿下來的參數是字串，先轉成 Number 再操作
-    // 新增以下
+    const categoryId = Number(req.query.categoryId) || '' // 從網址上拿下來的參數是字串，先轉成 Number 再操作
+
     const page = Number(req.query.page) || 1
     const limit = Number(req.query.limit) || DEFAULT_LIMIT
     const offset = getOffset(limit, page)
@@ -14,7 +14,7 @@ const restaurantController = {
     return Promise.all([
       Restaurant.findAndCountAll({
         include: Category,
-        where: { // 新增查詢條件
+        where: {
           ...categoryId ? { categoryId } : {} // 檢查 categoryId 是否為空值（注意是先處理 trinity operator 的條件，然後 spread operator 才作用）
         },
         limit,
@@ -32,7 +32,7 @@ const restaurantController = {
         return res.render('restaurants', {
           restaurants: data,
           categories,
-          categoryId, // 新增這裡，把 categoryId 帶到前端(以供前端判斷是否要加上 active class)
+          categoryId, // 新增這裡，把 categoryId 帶到前端(以供前端判斷哪個要加上 active class)
           pagination: getPagination(limit, page, total = restaurants.count) // 修改這裡，把 pagination 資料傳回樣板
         })
       })
@@ -41,7 +41,6 @@ const restaurantController = {
 
   getRestaurant: (req, res, next) => {
     return Restaurant.findByPk(req.params.id, {
-      // 修改以下
       include: [
         Category,
         { model: Comment, include: User }
