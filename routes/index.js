@@ -28,6 +28,10 @@ router.get('/restaurants', authenticated, restController.getRestaurants)
 router.delete('/comments/:id', authenticatedAdmin, commentController.deleteComment)
 router.post('/comments', authenticated, commentController.postComment)
 
+// 新增以下兩行
+router.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
+router.delete('/favorite/:restaurantId', authenticated, userController.removeFavorite)
+
 router.get('/users/:id', userController.getUser)
 router.get('/users/:id/edit', userController.editUser)
 router.put('/users/:id', upload.single('image'), userController.putUser)
