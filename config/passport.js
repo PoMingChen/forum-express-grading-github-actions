@@ -32,7 +32,9 @@ passport.deserializeUser((id, cb) => {
   return User.findByPk(id, {
     include: [
       { model: Restaurant, as: 'FavoritedRestaurants' }, // 寫法要對標 User model 裡面的設定
-      { model: Restaurant, as: 'LikedRestaurants' } // 寫法要對標 User model 裡面的設定
+      { model: Restaurant, as: 'LikedRestaurants' }, // 寫法要對標 User model 裡面的設定
+      { model: User, as: 'Followers' }, // 新增這行
+      { model: User, as: 'Followings' } // 新增這行
     ]
   })
     // 修改以下
