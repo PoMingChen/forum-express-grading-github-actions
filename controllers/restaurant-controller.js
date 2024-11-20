@@ -27,11 +27,14 @@ const restaurantController = {
       .then(([restaurants, categories]) => {
         // `req.user &&` is a short-circuit evaluation to ensure that req.user is not null or undefined ()
         const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
+        const LikedRestaurantsId = req.user && req.user.LikedRestaurants.map(lr => lr.id)
         const data = restaurants.rows.map(r => ({
           ...r,
           description: r.description.substring(0, 50),
-          isFavorited: favoritedRestaurantsId.includes(r.id)
+          isFavorited: favoritedRestaurantsId.includes(r.id),
+          isLiked: LikedRestaurantsId.includes(r.id)
         }))
+
         return res.render('restaurants', {
           restaurants: data,
           categories,
@@ -47,7 +50,8 @@ const restaurantController = {
       include: [
         Category,
         { model: Comment, include: User },
-        { model: User, as: 'FavoritedUsers' } //related to the Favorite model.
+        { model: User, as: 'FavoritedUsers' }, // 透過 Favorite Model 撈取出 Favorite 這間餐廳的 User
+        { model: User, as: 'LikedUsers' } // 透過 Favorite Model 撈取出 Like 這間餐廳的 User
       ]
     })
       .then(restaurant => {
@@ -55,9 +59,12 @@ const restaurantController = {
         restaurant.increment('view_counts', { by: 1 })
 
         const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id) // 新增這一行
+        const isLiked = restaurant.LikedUsers.some(f => f.id === req.user.id) // Like 這間餐廳的 User，是否有包含目前登入的 User
+
         return res.render('restaurant', {
           restaurant: restaurant.toJSON(),
-          isFavorited
+          isFavorited,
+          isLiked
         })
       })
       .catch(err => next(err))

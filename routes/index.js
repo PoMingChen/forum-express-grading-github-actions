@@ -32,6 +32,10 @@ router.post('/comments', authenticated, commentController.postComment)
 router.post('/favorite/:restaurantId', authenticated, userController.addFavorite)
 router.delete('/favorite/:restaurantId', authenticated, userController.removeFavorite)
 
+//The placeholder name in the route (:id or :restaurantId) is flexible and can be chosen based on your preference. The important part is to ensure consistency between your route definitions and how you access the parameter in your controller.
+router.post('/like/:restaurantId', authenticated, userController.addLike)
+router.delete('/like/:restaurantId', authenticated, userController.removeLike)
+
 router.get('/users/:id', userController.getUser)
 router.get('/users/:id/edit', userController.editUser)
 router.put('/users/:id', upload.single('image'), userController.putUser)
