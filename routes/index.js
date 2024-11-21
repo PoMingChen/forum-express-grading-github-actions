@@ -41,6 +41,10 @@ router.get('/users/:id/edit', userController.editUser)
 router.get('/users/:id', userController.getUser)
 router.put('/users/:id', upload.single('image'), userController.putUser)
 
+// 新增以下兩行
+router.post('/following/:userId', authenticated, userController.addFollowing)
+router.delete('/following/:userId', authenticated, userController.removeFollowing)
+
 router.get('/', (req, res) => res.redirect('/restaurants'))
 router.use('/', generalErrorHandler)
 

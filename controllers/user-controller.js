@@ -1,7 +1,7 @@
 const bcrypt = require('bcryptjs')
 // Imports models/index.js, which provides access to all models and the database connection
 const db = require('../models')
-const { User, Comment, Restaurant, Favorite, Like } = db
+const { User, Comment, Restaurant, Favorite, Like, Followship } = db
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const userController = {
@@ -190,18 +190,53 @@ const userController = {
       include: [{ model: User, as: 'Followers' }]
     })
       .then(users => {
-        console.log(users) //比較好理解接下來要 map 的 users 內容是什麼
-        // 整理 users 資料，把每個 user 項目都拿出來處理一次，並把新陣列儲存在 users 裡
-        users = users.map(user => ({
-          // 整理格式
-          ...user.toJSON(),
-          // 計算追蹤者人數
-          followerCount: user.Followers.length,
-          // 判斷目前登入使用者是否已追蹤該 user 物件
-          isFollowed: req.user.Followings.some(f => f.id === user.id)
-        }))
-        res.render('top-users', { users: users })
+        const result = users
+          .map(user => ({
+            ...user.toJSON(),
+            followerCount: user.Followers.length,
+            isFollowed: req.user.Followings.some(f => f.id === user.id)
+          }))
+          .sort((a, b) => b.followerCount - a.followerCount)
+        res.render('top-users', { users: result })
       })
+      .catch(err => next(err))
+  },
+
+  addFollowing: (req, res, next) => {
+    const { userId } = req.params // 取得欲追蹤的使用者 id（可以參考 router.post('/following/:userId' ...） 
+    Promise.all([
+      User.findByPk(userId),
+      Followship.findOne({
+        where: {
+          followerId: req.user.id, // 目前登入的使用者 id
+          followingId: req.params.userId // 欲追蹤的使用者 id
+        }
+      })
+    ])
+      .then(([user, followship]) => {
+        if (!user) throw new Error("User didn't exist!")
+        if (followship) throw new Error('You are already following this user!')
+        return Followship.create({
+          followerId: req.user.id,
+          followingId: userId
+        })
+      })
+      .then(() => res.redirect('back'))
+      .catch(err => next(err))
+  },
+
+  removeFollowing: (req, res, next) => {
+    Followship.findOne({
+      where: {
+        followerId: req.user.id, // 目前登入的使用者 id
+        followingId: req.params.userId // 欲追蹤的使用者 id
+      }
+    })
+      .then(followship => {
+        if (!followship) throw new Error("You haven't followed this user!")
+        return followship.destroy()
+      })
+      .then(() => res.redirect('back'))
       .catch(err => next(err))
   }
 }
