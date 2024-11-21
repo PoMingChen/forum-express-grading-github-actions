@@ -36,8 +36,9 @@ router.delete('/favorite/:restaurantId', authenticated, userController.removeFav
 router.post('/like/:restaurantId', authenticated, userController.addLike)
 router.delete('/like/:restaurantId', authenticated, userController.removeLike)
 
-router.get('/users/:id', userController.getUser)
+router.get('/users/top', authenticated, userController.getTopUsers) //新增這一行
 router.get('/users/:id/edit', userController.editUser)
+router.get('/users/:id', userController.getUser)
 router.put('/users/:id', upload.single('image'), userController.putUser)
 
 router.get('/', (req, res) => res.redirect('/restaurants'))
