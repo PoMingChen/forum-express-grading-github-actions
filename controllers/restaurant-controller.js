@@ -109,6 +109,29 @@ const restaurantController = {
         })
       })
       .catch(err => next(err))
+  },
+
+  getTopRestaurants: (req, res, next) => {
+    // 撈出所有 Restaurant 與 followers 資料
+    return Restaurant.findAll({
+      include: [
+        { model: User, as: 'FavoritedUsers' },
+        { model: Category } // 前端 top-user.hbs 也會用得到
+      ]
+    })
+      .then(restaurants => {
+        const result = restaurants
+          .map(restaurant => ({
+            ...restaurant.toJSON(),
+            favoritedCount: restaurant.FavoritedUsers.length,
+            isFavorited: req.user && req.user.FavoritedRestaurants.some(f => f.id === restaurant.id)
+          }))
+          .sort((a, b) => b.favoritedCount - a.favoritedCount)
+          .slice(0, 10) // 取前 10 筆資料(即為 Top 10)
+        // console.log(result)
+        res.render('top-restaurants', { restaurants: result })
+      })
+      .catch(err => next(err))
   }
 }
 
