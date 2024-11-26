@@ -16,13 +16,11 @@ module.exports = (sequelize, DataTypes) => {
         foreignKey: 'userId',
         as: 'LikedRestaurants'
       })
-      // 新增以下
       User.belongsToMany(User, {
         through: models.Followship,
         foreignKey: 'followingId',
         as: 'Followers'
       })
-      // 新增以下
       User.belongsToMany(User, {
         through: models.Followship,
         foreignKey: 'followerId',

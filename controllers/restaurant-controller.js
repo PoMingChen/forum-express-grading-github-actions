@@ -58,7 +58,7 @@ const restaurantController = {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
         restaurant.increment('view_counts', { by: 1 })
 
-        const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id) // 新增這一行
+        const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id)
         const isLiked = restaurant.LikedUsers.some(f => f.id === req.user.id) // Like 這間餐廳的 User，是否有包含目前登入的 User
 
         return res.render('restaurant', {
@@ -116,7 +116,7 @@ const restaurantController = {
     return Restaurant.findAll({
       include: [
         { model: User, as: 'FavoritedUsers' },
-        { model: Category } // 前端 top-user.hbs 也會用得到
+        { model: Category }
       ]
     })
       .then(restaurants => {
@@ -128,7 +128,6 @@ const restaurantController = {
           }))
           .sort((a, b) => b.favoritedCount - a.favoritedCount)
           .slice(0, 10) // 取前 10 筆資料(即為 Top 10)
-        // console.log(result)
         res.render('top-restaurants', { restaurants: result })
       })
       .catch(err => next(err))

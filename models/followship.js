@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
   }, {
     sequelize,
     modelName: 'Followship',
-    tableName: 'Followships', // 新增這裡
+    tableName: 'Followships',
     underscored: true
   })
   return Followship
