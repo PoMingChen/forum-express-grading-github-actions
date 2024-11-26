@@ -58,7 +58,7 @@ const restaurantController = {
         if (!restaurant) throw new Error("Restaurant didn't exist!")
         restaurant.increment('view_counts', { by: 1 })
 
-        const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id) // 新增這一行
+        const isFavorited = restaurant.FavoritedUsers.some(f => f.id === req.user.id)
         const isLiked = restaurant.LikedUsers.some(f => f.id === req.user.id) // Like 這間餐廳的 User，是否有包含目前登入的 User
 
         return res.render('restaurant', {
@@ -107,6 +107,28 @@ const restaurantController = {
           restaurants,
           comments
         })
+      })
+      .catch(err => next(err))
+  },
+
+  getTopRestaurants: (req, res, next) => {
+    // 撈出所有 Restaurant 與 followers 資料
+    return Restaurant.findAll({
+      include: [
+        { model: User, as: 'FavoritedUsers' },
+        { model: Category }
+      ]
+    })
+      .then(restaurants => {
+        const result = restaurants
+          .map(restaurant => ({
+            ...restaurant.toJSON(),
+            favoritedCount: restaurant.FavoritedUsers.length,
+            isFavorited: req.user && req.user.FavoritedRestaurants.some(f => f.id === restaurant.id)
+          }))
+          .sort((a, b) => b.favoritedCount - a.favoritedCount)
+          .slice(0, 10) // 取前 10 筆資料(即為 Top 10)
+        res.render('top-restaurants', { restaurants: result })
       })
       .catch(err => next(err))
   }

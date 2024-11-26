@@ -28,16 +28,14 @@ passport.serializeUser((user, cb) => {
   cb(null, user.id)
 })
 passport.deserializeUser((id, cb) => {
-  // 修改以下
   return User.findByPk(id, {
     include: [
       { model: Restaurant, as: 'FavoritedRestaurants' }, // 寫法要對標 User model 裡面的設定
       { model: Restaurant, as: 'LikedRestaurants' }, // 寫法要對標 User model 裡面的設定
-      { model: User, as: 'Followers' }, // 新增這行
-      { model: User, as: 'Followings' } // 新增這行
+      { model: User, as: 'Followers' },
+      { model: User, as: 'Followings' }
     ]
   })
-    // 修改以下
     .then(user => cb(null, user.toJSON()))
     .catch(err => cb(err))
 })

@@ -229,7 +229,7 @@ const userController = {
     Followship.findOne({
       where: {
         followerId: req.user.id, // 目前登入的使用者 id
-        followingId: req.params.userId // 欲追蹤的使用者 id
+        followingId: req.params.userId // 欲『退追蹤』的使用者 id
       }
     })
       .then(followship => {
