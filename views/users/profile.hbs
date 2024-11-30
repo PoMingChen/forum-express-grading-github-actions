@@ -7,6 +7,9 @@
     <h1>{{user.name}}</h1>
     <p>{{user.email}}</p>
     <p>{{comments.length}} 已評論餐廳</p>
+    <p>{{favoritedRestaurants.length}} 收藏的餐廳</p>
+    <p>{{followers.length}} followers（追蹤者）</p>
+    <p>{{followings.length}} followings（追隨的人）</p>
     <a href="/users/{{user.id}}/edit" class="btn btn-primary">edit</a>
   </div>
 
@@ -27,6 +30,60 @@
   {{else}}
   <div class="col-12">
     <p>目前沒有評論任何餐廳。</p>
+  </div>
+  {{/if}}
+</div>
+
+{{!-- {{this.FavoritedRestaurants.id}} 有可能寫得更精簡嗎？ --}}
+<p>{{favoritedRestaurantsData.length}} 收藏的餐廳</p>
+<div class="row">
+  {{#if favoritedRestaurantsData.length}}
+  {{#each favoritedRestaurantsData}}
+  <div class="col-1 mb-3">
+    <a href="/restaurants/{{this.FavoritedRestaurants.id}}">
+      <img src="{{this.FavoritedRestaurants.image}}" alt="{{this.FavoritedRestaurants.name}}" class="img-thumbnail">
+    </a>
+  </div>
+  {{/each}}
+  {{else}}
+  <div class="col-12">
+    <p>目前沒有收藏的餐廳</p>
+  </div>
+  {{/if}}
+</div>
+
+{{!-- {{this.Followers.id}} 有可能寫得更精簡嗎？ 該不會也要 data.rows.map(comment...) --}}
+<p>{{followersData.length}} follower（追蹤者）</p>
+<div class="row">
+  {{#if followersData.length}}
+  {{#each followersData}}
+  <div class="col-1 mb-3">
+    <a href="/restaurants/{{this.Followers.id}}">
+      <img src="{{this.Followers.image}}" alt="{{this.Followers.name}}" class="img-thumbnail">
+    </a>
+  </div>
+  {{/each}}
+  {{else}}
+  <div class="col-12">
+    <p>目前沒有 follower（追蹤者）</p>
+  </div>
+  {{/if}}
+</div>
+
+{{!-- {{this.FavoritedRestaurants.id}} 有可能寫得更精簡嗎？ 該不會也要 data.rows.map(comment...) --}}
+<p>{{followingsData.length}} followings（追隨的人）</p>
+<div class="row">
+  {{#if followingsData.length}}
+  {{#each followingsData}}
+  <div class="col-1 mb-3">
+    <a href="/restaurants/{{this.Followeings.id}}">
+      <img src="{{this.Followeings.image}}" alt="{{this.Followeings.name}}" class="img-thumbnail">
+    </a>
+  </div>
+  {{/each}}
+  {{else}}
+  <div class="col-12">
+    <p>目前沒有 followings（追隨的人）</p>
   </div>
   {{/if}}
 </div>

@@ -54,17 +54,78 @@ const userController = {
         where: { user_id: req.params.id },
         raw: true,
         nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: Restaurant, as: 'FavoritedRestaurants' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: User, as: 'Followers' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: User, as: 'Followings' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
       })
     ])
-      .then(([user, data]) => {
+      .then(([user, data, favoritedRestaurantsData, followersData, followingsData]) => {
         // Extract comments from data.rows
         let comments = data.rows.map(comment => ({ ...comment, Restaurant: comment.Restaurant }))
 
         // Ensure comments is always an array
         comments = comments || []
-
+        // console.log(data)
+        // console.log(comments)
+        console.log(favoritedRestaurantsData)
+        console.log(followersData)
+        console.log(followingsData)
         if (!user) throw new Error('User not found!')
-        return res.render('users/profile', { user, comments })
+
+        // Ensure favoritedRestaurants, followers, and followings are always arrays
+        const commentRestaurantIds = comments.map(comment => comment.Restaurant.id)
+        const favoritedRestaurantIds = favoritedRestaurantsData.map(favoritedRestaurant => favoritedRestaurant.FavoritedRestaurants.id)
+        const followerIds = followersData.map(follower => follower.Followers.id)
+        const followingIds = followingsData.map(following => following.Followings.id)
+
+        if (favoritedRestaurantIds.length === 1 && favoritedRestaurantIds[0] === null) {
+          favoritedRestaurantsData = []
+        }
+
+        if (followerIds.length === 1 && followerIds[0] === null) {
+          followersData = []
+        }
+
+        if (followingIds.length === 1 && followingIds[0] === null) {
+          followingsData = []
+        }
+
+        // Filter out duplicate restaurants
+        const uniqueRestaurants = []
+        const restaurantIds = new Set()
+
+        comments.forEach(comment => {
+          if (!restaurantIds.has(comment.restaurantId)) {
+            restaurantIds.add(comment.restaurantId)
+            uniqueRestaurants.push(comment)
+          }
+        })
+
+        // Sort uniqueRestaurants by restaurantId
+        uniqueRestaurants.sort((a, b) => a.restaurantId - b.restaurantId)
+
+        return res.render('users/profile', { user, comments: uniqueRestaurants, favoritedRestaurantsData, followersData, followingsData })
       })
       .catch(err => next(err))
   },
@@ -203,7 +264,7 @@ const userController = {
   },
 
   addFollowing: (req, res, next) => {
-    const { userId } = req.params // 取得欲追蹤的使用者 id（可以參考 router.post('/following/:userId' ...） 
+    const { userId } = req.params // 取得欲追蹤的使用者 id（可以參考 router.post('/following/:userId' ...）
     Promise.all([
       User.findByPk(userId),
       Followship.findOne({
