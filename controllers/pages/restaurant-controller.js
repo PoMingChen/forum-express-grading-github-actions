@@ -1,48 +1,9 @@
 const { Restaurant, Category, Comment, User } = require('../../models')
-const { getOffset, getPagination } = require('../../helpers/pagination-helper')
+const restaurantServices = require('../../services/restaurant-services')
 
 const restaurantController = {
-
   getRestaurants: (req, res, next) => {
-    const DEFAULT_LIMIT = 9
-    const categoryId = Number(req.query.categoryId) || '' // 從網址上拿下來的參數是字串，先轉成 Number 再操作
-
-    const page = Number(req.query.page) || 1
-    const limit = Number(req.query.limit) || DEFAULT_LIMIT
-    const offset = getOffset(limit, page)
-
-    return Promise.all([
-      Restaurant.findAndCountAll({
-        include: Category,
-        where: {
-          ...categoryId ? { categoryId } : {} // 檢查 categoryId 是否為空值（注意是先處理 trinity operator 的條件，然後 spread operator 才作用）
-        },
-        limit,
-        offset,
-        nest: true,
-        raw: true
-      }),
-      Category.findAll({ raw: true })
-    ])
-      .then(([restaurants, categories]) => {
-        // `req.user &&` is a short-circuit evaluation to ensure that req.user is not null or undefined ()
-        const favoritedRestaurantsId = req.user && req.user.FavoritedRestaurants.map(fr => fr.id)
-        const LikedRestaurantsId = req.user && req.user.LikedRestaurants.map(lr => lr.id)
-        const data = restaurants.rows.map(r => ({
-          ...r,
-          description: r.description.substring(0, 50),
-          isFavorited: favoritedRestaurantsId.includes(r.id),
-          isLiked: LikedRestaurantsId.includes(r.id)
-        }))
-
-        return res.render('restaurants', {
-          restaurants: data,
-          categories,
-          categoryId, // 新增這裡，把 categoryId 帶到前端(以供前端判斷哪個要加上 active class)
-          pagination: getPagination(limit, page, total = restaurants.count) // 修改這裡，把 pagination 資料傳回樣板
-        })
-      })
-      .catch(err => next(err))
+    restaurantServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('restaurants', data))
   },
 
   getRestaurant: (req, res, next) => {
