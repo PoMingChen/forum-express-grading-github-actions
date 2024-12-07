@@ -1,8 +1,8 @@
 const bcrypt = require('bcryptjs')
 // Imports models/index.js, which provides access to all models and the database connection
-const db = require('../models')
+const db = require('../../models')
 const { User, Comment, Restaurant, Favorite, Like, Followship } = db
-const { localFileHandler } = require('../helpers/file-helpers')
+const { localFileHandler } = require('../../helpers/file-helpers')
 
 const userController = {
   signUpPage: (req, res) => {
