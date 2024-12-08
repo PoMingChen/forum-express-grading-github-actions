@@ -1,16 +1,12 @@
+const adminServices = require('../../services/admin-services') // 新增這裡，引入 admin-services
 const { Restaurant, User, Category } = require('../../models')
 const { localFileHandler } = require('../../helpers/file-helpers')
 
 const adminController = {
 
+  // 修改以下
   getRestaurants: (req, res, next) => {
-    return Restaurant.findAll({
-      raw: true,
-      nest: true, // 增加這裡
-      include: [Category] // 增加這裡
-    })
-      .then(restaurants => res.render('admin/restaurants', { restaurants }))
-      .catch(err => next(err))
+    adminServices.getRestaurants(req, (err, data) => err ? next(err) : res.render('admin/restaurants', data))
   },
 
   createRestaurant: (req, res, next) => {
