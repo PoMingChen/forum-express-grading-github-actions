@@ -7,6 +7,10 @@ const adminController = {
     adminServices.getRestaurants(req, (err, data) => err ? next(err) : res.json({ status: 'success', data })) // 修改這裡
   }, // 加逗號
 
+  postRestaurant: (req, res, next) => {
+    adminServices.postRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+
   deleteRestaurant: (req, res, next) => {
     adminServices.deleteRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data })) // 修改這裡
   }

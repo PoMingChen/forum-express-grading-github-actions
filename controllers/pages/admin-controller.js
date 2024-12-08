@@ -17,29 +17,14 @@ const adminController = {
       .catch(err => next(err))
   },
 
+  // 修改以下
   postRestaurant: (req, res, next) => {
-    console.log('postRestaurant handler reached')
-    const { name, tel, address, openingHours, description, categoryId } = req.body // 從 req.body 拿出表單裡的資料
-    if (!name) throw new Error('Restaurant name is required!') // name 是必填，若發現是空值就會終止程式碼，並在畫面顯示錯誤提示
-
-    const { file } = req
-
-    // Pass the extracted file to file-helper for processing, and then create the restaurant data
-    return localFileHandler(file)
-      .then(filePath => Restaurant.create({
-        name,
-        tel,
-        address,
-        openingHours,
-        description,
-        image: filePath || null,
-        categoryId
-      }))
-      .then(() => {
-        req.flash('success_messages', 'restaurant was successfully created')
-        res.redirect('/admin/restaurants')
-      })
-      .catch(err => next(err))
+    adminServices.postRestaurant(req, (err, data) => {
+      if (err) return next(err)
+      req.flash('success_messages', 'restaurant was successfully created')
+      req.session.createdData = data
+      return res.redirect('/admin/restaurants')
+    })
   },
 
   getRestaurant: (req, res, next) => {

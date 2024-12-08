@@ -21,6 +21,7 @@ app.engine('hbs', handlebars({ extname: '.hbs', helpers: handlebarsHelpers }))
 app.set('view engine', 'hbs')
 
 app.use(express.urlencoded({ extended: true })) // 處理來自表單的 POST 請求，將請求體解析為 req.body（不然會是 req.body 會是 undefined）
+app.use(express.json()) // 新增這行，讓 Express 能夠解析 JSON 格式的請求
 app.use(session({ secret: SESSION_SECRET, resave: false, saveUninitialized: false }))
 app.use(passport.initialize()) // 初始化 Passport
 app.use(passport.session()) // 增加這行，啟動 session 功能
