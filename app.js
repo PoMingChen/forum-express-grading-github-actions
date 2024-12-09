@@ -11,6 +11,10 @@ const handlebarsHelpers = require('./helpers/handlebars-helpers')
 const { pages, apis } = require('./routes')
 
 const app = express()
+// require('dotenv').config()
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config()
+}
 const port = process.env.PORT || 3000
 const SESSION_SECRET = 'secret'
 const db = require('./models')
