@@ -1,3 +1,8 @@
+// ensure that environment variables are loaded before any other code is executed
+if (process.env.NODE_ENV === 'development') {
+  require('dotenv').config()
+}
+
 const path = require('path') // 引入 path 套件
 const express = require('express')
 const handlebars = require('express-handlebars')
@@ -11,10 +16,7 @@ const handlebarsHelpers = require('./helpers/handlebars-helpers')
 const { pages, apis } = require('./routes')
 
 const app = express()
-// require('dotenv').config()
-if (process.env.NODE_ENV === 'development') {
-  require('dotenv').config()
-}
+
 const port = process.env.PORT || 3000
 const SESSION_SECRET = 'secret'
 const db = require('./models')
