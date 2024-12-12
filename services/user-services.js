@@ -1,5 +1,6 @@
 const { User } = require('../models')
 const bcrypt = require('bcryptjs')
+const { localFileHandler } = require('../helpers/file-helpers')
 
 const userServices = {
 
@@ -16,6 +17,24 @@ const userServices = {
         email: req.body.email,
         password: hash
       }))
+      .then(user => cb(null, { user }))
+      .catch(err => cb(err))
+  },
+
+  putUser: (req, cb) => {
+    const { name } = req.body
+    const { file } = req
+    Promise.all([
+      User.findByPk(req.params.id),
+      localFileHandler(file)
+    ])
+      .then(([user, filePath]) => {
+        if (!user) throw new Error("User didn't exist!")
+        return user.update({
+          name,
+          image: filePath || user.image
+        })
+      })
       .then(user => cb(null, { user }))
       .catch(err => cb(err))
   }

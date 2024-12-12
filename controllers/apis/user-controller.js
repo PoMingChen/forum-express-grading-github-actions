@@ -26,6 +26,13 @@ const userController = {
     if (req.body.password !== req.body.passwordCheck) throw new Error('Passwords do not match!')
 
     userServices.signUp(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+
+  putUser: (req, res, next) => {
+    const { name } = req.body
+    if (!name) throw new Error('User name is required!')
+
+    userServices.putUser(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 module.exports = userController
