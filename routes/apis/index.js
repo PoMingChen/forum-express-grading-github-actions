@@ -18,7 +18,8 @@ router.post('/signup', userController.signUp)
 router.post('/following/:userId', authenticated, userController.addFollowing)
 router.delete('/following/:userId', authenticated, userController.removeFollowing)
 
-router.put('/users/:id', upload.single('image'), userController.putUser)
+router.put('/users/:id', authenticated, upload.single('image'), userController.putUser)
+router.get('/users/:id', authenticated, userController.getUser)
 
 router.use('/', apiErrorHandler)
 

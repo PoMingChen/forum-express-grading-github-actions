@@ -41,6 +41,10 @@ const userController = {
 
   removeFollowing: (req, res, next) => {
     userServices.removeFollowing(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+
+  getUser: (req, res, next) => {
+    userServices.getUserData(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 
 }

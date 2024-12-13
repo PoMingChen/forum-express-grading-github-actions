@@ -1,4 +1,4 @@
-const { User, Followship } = require('../models')
+const { User, Followship, Restaurant, Comment } = require('../models')
 const bcrypt = require('bcryptjs')
 const { localFileHandler } = require('../helpers/file-helpers')
 
@@ -75,8 +75,100 @@ const userServices = {
       })
       .then(userFollowshipDeletion => cb(null, { userFollowshipDeletion }))
       .catch(err => cb(err))
-  }
+  },
 
+  getUser: (req, cb) => {
+    return Promise.all([
+      User.findByPk(req.params.id, { raw: true }),
+      Comment.findAndCountAll({
+        include: {
+          model: Restaurant,
+          attributes: ['id', 'name', 'image']
+        },
+        where: { user_id: req.params.id },
+        raw: true,
+        nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: Restaurant, as: 'FavoritedRestaurants' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: User, as: 'Followers' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
+      }),
+      User.findAll({
+        include: [
+          { model: User, as: 'Followings' }
+        ],
+        where: { id: req.params.id },
+        raw: true,
+        nest: true
+      })
+    ])
+      .then(([user, data, favoritedRestaurantsData, followersData, followingsData]) => {
+        // Extract comments from data.rows
+        let comments = data.rows.map(comment => ({ ...comment, Restaurant: comment.Restaurant }))
+
+        // Ensure comments is always an array
+        comments = comments || []
+        // console.log(data)
+        // console.log(comments)
+        console.log(favoritedRestaurantsData)
+        console.log(followersData)
+        console.log(followingsData)
+        if (!user) throw new Error('User not found!')
+
+        // Ensure favoritedRestaurants, followers, and followings are always arrays
+        const commentRestaurantIds = comments.map(comment => comment.Restaurant.id)
+        const favoritedRestaurantIds = favoritedRestaurantsData.map(favoritedRestaurant => favoritedRestaurant.FavoritedRestaurants.id)
+        const followerIds = followersData.map(follower => follower.Followers.id)
+        const followingIds = followingsData.map(following => following.Followings.id)
+
+        if (favoritedRestaurantIds.length === 1 && favoritedRestaurantIds[0] === null) {
+          favoritedRestaurantsData = []
+        }
+
+        if (followerIds.length === 1 && followerIds[0] === null) {
+          followersData = []
+        }
+
+        if (followingIds.length === 1 && followingIds[0] === null) {
+          followingsData = []
+        }
+
+        // Filter out duplicate restaurants
+        const uniqueRestaurants = []
+        const restaurantIds = new Set()
+
+        comments.forEach(comment => {
+          if (!restaurantIds.has(comment.restaurantId)) {
+            restaurantIds.add(comment.restaurantId)
+            uniqueRestaurants.push(comment)
+          }
+        })
+
+        // Sort uniqueRestaurants by restaurantId
+        uniqueRestaurants.sort((a, b) => a.restaurantId - b.restaurantId)
+
+        return cb(null, {
+          user,
+          comments: uniqueRestaurants,
+          favoritedRestaurantsData,
+          followersData,
+          followingsData
+        })
+      })
+      .catch(err => cb(err))
+  }
 }
 
 module.exports = userServices
