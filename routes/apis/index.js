@@ -15,6 +15,9 @@ router.get('/restaurants', authenticated, restController.getRestaurants)
 router.post('/signin', passport.authenticate('local', { session: false }), userController.signIn)
 router.post('/signup', userController.signUp)
 
+router.post('/following/:userId', authenticated, userController.addFollowing)
+router.delete('/following/:userId', authenticated, userController.removeFollowing)
+
 router.put('/users/:id', upload.single('image'), userController.putUser)
 
 router.use('/', apiErrorHandler)

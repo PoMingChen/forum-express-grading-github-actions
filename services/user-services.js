@@ -1,4 +1,4 @@
-const { User } = require('../models')
+const { User, Followship } = require('../models')
 const bcrypt = require('bcryptjs')
 const { localFileHandler } = require('../helpers/file-helpers')
 
@@ -37,7 +37,46 @@ const userServices = {
       })
       .then(user => cb(null, { user }))
       .catch(err => cb(err))
+  },
+
+  addFollowing: (req, cb) => {
+    const { userId } = req.params // 取得欲追蹤的使用者 id（可以參考 router.post('/following/:userId' ...）
+    Promise.all([
+      User.findByPk(userId),
+      Followship.findOne({
+        where: {
+          followerId: req.user.id, // 目前登入的使用者 id
+          followingId: req.params.userId // 欲追蹤的使用者 id
+        }
+      })
+    ])
+      .then(([user, followship]) => {
+        if (!user) throw new Error("User didn't exist!")
+        if (followship) throw new Error('You are already following this user!')
+        return Followship.create({
+          followerId: req.user.id,
+          followingId: userId
+        })
+      })
+      .then(userFollowship => cb(null, { userFollowship }))
+      .catch(err => cb(err))
+  },
+
+  removeFollowing: (req, cb) => {
+    Followship.findOne({
+      where: {
+        followerId: req.user.id, // 目前登入的使用者 id
+        followingId: req.params.userId // 欲『退追蹤』的使用者 id
+      }
+    })
+      .then(followship => {
+        if (!followship) throw new Error("You haven't followed this user!")
+        return followship.destroy()
+      })
+      .then(userFollowshipDeletion => cb(null, { userFollowshipDeletion }))
+      .catch(err => cb(err))
   }
+
 }
 
 module.exports = userServices
