@@ -14,6 +14,7 @@ const { apiErrorHandler } = require('../../middleware/error-handler')
 // 這邊要一行可以直接導到 admin 路由模組
 router.use('/admin', authenticated, authenticatedAdmin, admin)
 
+router.get('/restaurants/feeds', authenticated, restController.getFeeds)
 router.get('/restaurants/:id', authenticated, restController.getRestaurant)
 router.get('/restaurants', authenticated, restController.getRestaurants)
 
