@@ -1,4 +1,4 @@
-const { Restaurant, Category } = require('../models')
+const { Restaurant, Category, User } = require('../models')
 const { localFileHandler } = require('../helpers/file-helpers')
 
 const adminServices = {
@@ -70,6 +70,27 @@ const adminServices = {
         return restaurant.destroy()
       })
       .then(deletedRestaurant => cb(null, { restaurant: deletedRestaurant }))
+      .catch(err => cb(err))
+  },
+
+  patchUser: (req, cb) => {
+    return User.findByPk(req.params.id)
+      .then(user => {
+        if (!user || user.email === 'root@example.com') {
+          if (!user) {
+            throw new Error('User not found')
+          } else {
+            // req.flash('error_messages', '禁止變更 root 權限')
+            // return res.redirect('back')
+            throw new Error('禁止變更 root 權限')
+          }
+        }
+        const isAdminUpdated = !user.isAdmin
+        return user.update({ isAdmin: isAdminUpdated }) // the user instance has the property called isAdmin, not is_admin (the column name in the database)
+      })
+      .then(user => {
+        return cb(null, { user })
+      })
       .catch(err => cb(err))
   }
 }

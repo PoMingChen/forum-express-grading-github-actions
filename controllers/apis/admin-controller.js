@@ -16,7 +16,11 @@ const adminController = {
   },
 
   deleteRestaurant: (req, res, next) => {
-    adminServices.deleteRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data })) // 修改這裡
+    adminServices.deleteRestaurant(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
+  },
+
+  patchUser: (req, res, next) => {
+    adminServices.patchUser(req, (err, data) => err ? next(err) : res.json({ status: 'success', data }))
   }
 }
 
