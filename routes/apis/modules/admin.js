@@ -5,6 +5,7 @@ const adminController = require('../../../controllers/apis/admin-controller')
 const upload = require('../../../middleware/multer')
 router.delete('/restaurants/:id', adminController.deleteRestaurant) // 新增這裡
 router.get('/restaurants', adminController.getRestaurants)
-router.post('/restaurants', upload.single('image'), adminController.postRestaurant) // 新增這裡
+router.post('/restaurants', upload.single('image'), adminController.postRestaurant)
+router.put('/restaurant/:id', upload.single('image'), adminController.putRestaurant)
 
 module.exports = router
